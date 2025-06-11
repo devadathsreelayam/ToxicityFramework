@@ -73,7 +73,7 @@ class GeneratedDescToxicDataset(TorchDataset):
             edge_attr = torch.stack(edge_attr)
         else:
             edge_index = torch.empty((2, 0), dtype=torch.long)
-            edge_attr = torch.empty((0, 3), dtype=torch.float)
+            edge_attr = torch.empty((0, 4), dtype=torch.float) # Creating blank array with 4 features
 
         global_desc_array = np.array(global_desc.values if hasattr(global_desc, 'values') else global_desc,
                                      dtype=np.float32).reshape(1, -1)
@@ -96,14 +96,14 @@ class GeneratedDescToxicDataset(TorchDataset):
                 data_list.append(data)
         return data_list
 
-    def get_dataloaders(self, batch_size=32, shuffle=True):
+    def get_dataloaders(self, batch_size=32, shuffle=True, num_workers=0):
         train_data = self.process_dataframe(self.train_df)
         val_data = self.process_dataframe(self.val_df)
         test_data = self.process_dataframe(self.test_df)
 
-        train_loader = DataLoader(train_data, batch_size=batch_size, shuffle=shuffle)
-        val_loader = DataLoader(val_data, batch_size=batch_size, shuffle=False)
-        test_loader = DataLoader(test_data, batch_size=batch_size, shuffle=False)
+        train_loader = DataLoader(train_data, batch_size=batch_size, shuffle=shuffle, num_workers=num_workers)
+        val_loader = DataLoader(val_data, batch_size=batch_size, shuffle=False, num_workers=num_workers)
+        test_loader = DataLoader(test_data, batch_size=batch_size, shuffle=False, num_workers=num_workers)
 
         return train_loader, val_loader, test_loader
 

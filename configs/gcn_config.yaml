@@ -1,0 +1,36 @@
+seed: 42
+
+training:
+  batch_size: 64
+  num_workers: 4
+  epochs: 100
+  patience: 10
+
+optuna:
+  n_trials: 10
+  hidden_channels: [64, 128, 256]
+  num_layers: [2, 4]     # Min, Max
+  dropout: [0.2, 0.5]    # Min, Max
+  lr: [1e-4, 1e-2]       # Min, Max
+
+data_root: data/generated_desc
+
+output:
+  root: saved_models/gcn_optimised
+  model_dir: saved_models/gcn_optimised/models
+  history_dir: saved_models/gcn_optimised/history
+  metrics_file: saved_models/gcn_optimised/evaluation_metrics.csv
+
+retry:
+  small_dataset_threshold: 2000
+
+  low_roc:
+    threshold: 0.7
+    max_trials: 50
+
+  medium_roc:
+    enabled: true
+    threshold: 0.8
+    max_trials: 15
+
+skip_endpoints: []

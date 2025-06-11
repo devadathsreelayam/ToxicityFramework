@@ -205,7 +205,7 @@ def run_study(endpoint_dir, output_dir='saved_models/gat_optimised', n_trials=50
 
         optimizer = torch.optim.Adam(model.parameters(), lr=params['lr'])
         trainer = GATTrainer(model, device)
-        val_roc, history_df = trainer.train(train_loader, val_loader, optimizer, epochs=50, patience=7)
+        val_roc, history_df = trainer.train(train_loader, val_loader, optimizer, epochs=30, patience=5)
 
         # Save trial history
         trial_history_path = os.path.join(output_dir, f'{endpoint}_optimisation_history.csv')
@@ -317,7 +317,13 @@ def batch_run(endpoint_dirs, output_dir='saved_models/gat_optimised', n_trials=5
         print("\n" + "=" * 60)
         print(f"🔍 Processing Endpoint: {os.path.basename(endpoint)}")
         print("=" * 60 + "\n")
-        run_study(endpoint, output_dir, n_trials)
+
+        try:
+            run_study(endpoint, output_dir, n_trials)
+        except Exception as e:
+            print(f'Error with endpoint: {endpoint}')
+            print(str(e))
+            continue
 
     print("\n" + "=" * 60)
     print("🎉 All Optimizations Completed Successfully!")
@@ -325,5 +331,18 @@ def batch_run(endpoint_dirs, output_dir='saved_models/gat_optimised', n_trials=5
 
 
 if __name__ == "__main__":
-    endpoints = ['data/generated_desc/skin_sens', 'data/generated_desc/bee_tox']
-    batch_run(endpoints, n_trials=5)
+    ran_endpoints = [
+        'ames', 'avian_tox', 'bee_tox', 'biodegradation', 'carcinogenicity',
+        'crustacean', 'eye_corrosion', 'eye_irritation', 'h_ht', 'herg',
+        'hia', 'micronucleus_tox', 'nr_gr', 'nr_tr', 'respiratory_tox', 'skin_sens'
+    ]
+    
+    BASE_DIR = 'data/generated_desc'
+    all_endpoints = os.listdir(BASE_DIR)
+    
+    endpoints = [f'{BASE_DIR}/{endpoint}' for endpoint in all_endpoints if endpoint not in ran_endpoints]
+    output_dir = 'saved_models/gat_optimised'
+    models_output_dir = 'saved_models/gat_optimised'
+    os.makedirs(models_output_dir, exist_ok=True)
+    
+    batch_run(endpoints, n_trials=10, output_dir='saved_models/gat_optimised')
